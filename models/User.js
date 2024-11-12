@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Review = require('../models/Review');
 
 const userSchema = new Schema({
   nickName: {
@@ -20,6 +21,16 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  // 내가 작성한 리뷰 리스트
+  reviewList: [
+    {
+      reviewId: {
+        type: mongoose.ObjectId,
+        ref: Review,
+        required: true
+      },
+    }
+  ],
   // 동료평가 리스트
   peerReviewList: [
     {
