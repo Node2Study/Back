@@ -7,12 +7,7 @@ const teamSchema = new Schema({
     type: String,
     required: true,
   },
-  // 팀 리더
-  leader: {
-    type: mongoose.ObjectId,
-    required: true,
-  },
-  // 팀원 -> 개인, 단체로 나눌 수 있다.
+  // 팀원(유저 id)
   memberList: [
     {
       userId: {

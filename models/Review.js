@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const reviewSchema = new Schema({
+  // 리뷰 작성자(작성자 유저 id)
+  writer: {
+    type: mongoose.ObjectId,
+    required: true,
+  },
   // 리뷰 내용
   content: {
     type: String,

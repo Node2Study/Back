@@ -30,14 +30,10 @@ const projectSchema = new Schema({
   },
   thumbnail: {
     type: String,
-    required: true,
   },
   duration: {
     type: Date,
     required: true,
-  },
-  review: {
-    type: String,
   },
   // 좋아요, 추천
   like: {
