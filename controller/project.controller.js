@@ -1,6 +1,7 @@
 const Project = require('../models/Project');
 const projectController = {};
 
+// main-page api
 projectController.getAllProjects = async (req, res) => {
   try {
     // 검색
