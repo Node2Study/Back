@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const indexRouter = require("./routes/index");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const app = express();
@@ -13,6 +14,7 @@ const corsOptions = {
   credentials: true, // 쿠키 및 자격 증명 허용
 };
 
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
