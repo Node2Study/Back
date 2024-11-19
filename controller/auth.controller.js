@@ -38,25 +38,34 @@ authController.emailLogin = async (req, res) => {
 authController.socialLogin = async (req, res) => {
   try {
     const { idToken } = req.body;
-    let ticket = "";
 
-    const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
-    ticket = await googleClient.verifyIdToken({
-      idToken,
-      audience: GOOGLE_CLIENT_ID,
-    });
+    let email, name, profileImg;
 
-    const { email, name, picture } = ticket.getPayload();
-    const userId = email.split("@")[0];
+    if (typeof idToken === "object") {
+      email = idToken.email.split("@")[0];
+      email += "K";
+      name = idToken.nickname;
+      profileImg = idToken?.profileImage;
+    } else {
+      const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: GOOGLE_CLIENT_ID,
+      });
+      email = ticket.getPayload().email.split("@")[0];
+      email += "G";
+      name = ticket.getPayload().name;
+      profileImg = ticket.getPayload()?.picture;
+    }
 
-    let findUser = await User.findOne({ email: userId });
+    let findUser = await User.findOne({ email });
 
     if (!findUser) {
       findUser = new User({
         nickName: "",
         name,
-        email: userId,
-        profileImg: picture,
+        email,
+        profileImg,
       });
 
       return res.status(200).json({ status: "success", findUser });
