@@ -47,14 +47,15 @@ authController.socialLogin = async (req, res) => {
     });
 
     const { email, name, picture } = ticket.getPayload();
+    const userId = email.split("@")[0];
 
-    let findUser = await User.findOne({ email });
+    let findUser = await User.findOne({ email: userId });
 
     if (!findUser) {
       findUser = new User({
         nickName: "",
         name,
-        email,
+        email: userId,
         profileImg: picture,
       });
 
