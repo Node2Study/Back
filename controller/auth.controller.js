@@ -2,8 +2,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const User = require("../models/User");
+const { OAuth2Client } = require("google-auth-library");
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const COOKIE_SECURE = process.env.COOKIE_SECURE;
 
 const authController = {};
 
@@ -19,24 +22,76 @@ authController.emailLogin = async (req, res) => {
 
       const { accessToken, refreshToken } = await findUser.generateToken();
 
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
-        secure: false, // 배포시 true로 변경
-        sameSite: "strict", // 동일 출처에서만 사용 가능
-      });
-
-      return res.status(200).json({ status: "success", findUser, accessToken });
+      return res
+        .cookie("refreshToken", refreshToken, {
+          httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
+          secure: COOKIE_SECURE, // 배포시 true로 변경
+          sameSite: "strict", // 동일 출처에서만 사용 가능
+        })
+        .status(200)
+        .json({ status: "success", findUser, accessToken });
     }
   } catch (error) {
-    res.status(402).json({ status: "fail", error: error.message });
+    return res.status(402).json({ status: "fail", error: error.message });
+  }
+};
+
+authController.socialLogin = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    let email, name, profileImg;
+
+    if (typeof idToken === "object") {
+      email = idToken.email.split("@")[0];
+      email += "K";
+      name = idToken.nickname;
+      profileImg = idToken?.profileImage;
+    } else {
+      const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: GOOGLE_CLIENT_ID,
+      });
+      email = ticket.getPayload().email.split("@")[0];
+      email += "G";
+      name = ticket.getPayload().name;
+      profileImg = ticket.getPayload()?.picture;
+    }
+
+    let findUser = await User.findOne({ email });
+
+    if (!findUser) {
+      findUser = new User({
+        nickName: "",
+        name,
+        email,
+        profileImg,
+      });
+
+      return res.status(200).json({ status: "success", findUser });
+    }
+
+    const { accessToken, refreshToken } = await findUser.generateToken();
+
+    return res
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
+        secure: COOKIE_SECURE, // 배포시 true로 변경
+        sameSite: "strict", // 동일 출처에서만 사용 가능
+      })
+      .status(200)
+      .json({ status: "success", findUser, accessToken });
+  } catch (error) {
+    return res.status(400).json({ status: "fail", error: error.message });
   }
 };
 
 authController.logout = (req, res) => {
-  res
+  return res
     .clearCookie("refreshToken", {
       httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
-      secure: false, // 배포시 true로 변경
+      secure: COOKIE_SECURE, // 배포시 true로 변경
       sameSite: "strict", // 동일 출처에서만 사용 가능
     })
     .status(200)
@@ -77,7 +132,7 @@ authController.authenticate = async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(400).json({ status: "fail", error: error.message });
+    return res.status(400).json({ status: "fail", error: error.message });
   }
 };
 
