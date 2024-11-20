@@ -6,6 +6,7 @@ const { OAuth2Client } = require("google-auth-library");
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const COOKIE_SECURE = process.env.COOKIE_SECURE;
 
 const authController = {};
 
