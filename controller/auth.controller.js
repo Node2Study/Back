@@ -24,7 +24,7 @@ authController.emailLogin = async (req, res) => {
       return res
         .cookie("refreshToken", refreshToken, {
           httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
-          secure: false, // 배포시 true로 변경
+          secure: COOKIE_SECURE, // 배포시 true로 변경
           sameSite: "strict", // 동일 출처에서만 사용 가능
         })
         .status(200)
@@ -76,7 +76,7 @@ authController.socialLogin = async (req, res) => {
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
-        secure: false, // 배포시 true로 변경
+        secure: COOKIE_SECURE, // 배포시 true로 변경
         sameSite: "strict", // 동일 출처에서만 사용 가능
       })
       .status(200)
@@ -90,7 +90,7 @@ authController.logout = (req, res) => {
   return res
     .clearCookie("refreshToken", {
       httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
-      secure: false, // 배포시 true로 변경
+      secure: COOKIE_SECURE, // 배포시 true로 변경
       sameSite: "strict", // 동일 출처에서만 사용 가능
     })
     .status(200)
