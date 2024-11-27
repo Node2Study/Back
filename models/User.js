@@ -62,17 +62,20 @@ userSchema.methods.toJSON = function () {
 userSchema.methods.generateToken = async function () {
   // 액세스 토큰 생성
   const accessToken = jwt.sign({ _id: this._id }, JWT_SECRET_KEY, {
-    expiresIn: "10m",
+    expiresIn: "15m",
   });
 
   // 리프레시 토큰 생성
-  const refreshToken = jwt.sign({ _id: this._id }, JWT_REFRESH_SECRET_KEY, {
-    expiresIn: "7d",
-  });
-  this.refreshToken = refreshToken;
+
+  if (!this.refreshToken) {
+    const refreshToken = jwt.sign({ _id: this._id }, JWT_REFRESH_SECRET_KEY, {
+      expiresIn: "3d",
+    });
+    this.refreshToken = refreshToken;
+  }
   await this.save();
 
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken: this.refreshToken };
 };
 
 const User = mongoose.model("User", userSchema);

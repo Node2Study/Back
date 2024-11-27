@@ -88,7 +88,15 @@ authController.socialLogin = async (req, res) => {
   }
 };
 
-authController.logout = (req, res) => {
+authController.logout = async (req, res) => {
+  const { userId } = req;
+
+  await User.findByIdAndUpdate(
+    { _id: userId },
+    { $unset: { refreshToken: "" } },
+    { new: true }
+  );
+
   return res
     .clearCookie("refreshToken", {
       httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
@@ -112,26 +120,24 @@ authController.authenticate = async (req, res, next) => {
         }
         req.userId = payload._id;
       });
-    } else {
-      const refreshToken = req.cookies.refreshToken;
+      return next();
+    }
 
-      if (!refreshToken) return;
+    const refreshToken = req.cookies.refreshToken;
 
+    if (refreshToken) {
       jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY, (error, payload) => {
         if (error) {
           return res.status(403).json({ message: "유효하지 않은 토큰입니다." });
         }
-
         const accessToken = jwt.sign({ _id: payload._id }, JWT_SECRET_KEY, {
           expiresIn: "10m",
         });
-
         req.userId = payload._id;
         req.accessToken = accessToken;
       });
+      return next();
     }
-
-    next();
   } catch (error) {
     return res.status(400).json({ status: "fail", error: error.message });
   }
