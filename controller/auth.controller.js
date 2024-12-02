@@ -29,6 +29,7 @@ authController.emailLogin = async (req, res) => {
         httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
         secure: COOKIE_SECURE, // 배포시 true로 변경
         sameSite: "strict", // 동일 출처에서만 사용 가능
+        maxAge: 1000 * 60 * 60 * 24 * 7,
       })
       .status(200)
       .json({ status: "success", findUser, accessToken });
@@ -80,6 +81,7 @@ authController.socialLogin = async (req, res) => {
         httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
         secure: COOKIE_SECURE, // 배포시 true로 변경
         sameSite: "strict", // 동일 출처에서만 사용 가능
+        maxAge: 1000 * 60 * 60 * 24 * 7,
       })
       .status(200)
       .json({ status: "success", findUser, accessToken });
@@ -102,6 +104,7 @@ authController.logout = async (req, res) => {
       httpOnly: true, // 클라이언트 자바스크립트에서 접근 불가
       secure: COOKIE_SECURE, // 배포시 true로 변경
       sameSite: "strict", // 동일 출처에서만 사용 가능
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     })
     .status(200)
     .json({ status: "success" });

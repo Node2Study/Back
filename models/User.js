@@ -69,7 +69,7 @@ userSchema.methods.generateToken = async function () {
 
   if (!this.refreshToken) {
     const refreshToken = jwt.sign({ _id: this._id }, JWT_REFRESH_SECRET_KEY, {
-      expiresIn: "3d",
+      expiresIn: "7d",
     });
     this.refreshToken = refreshToken;
   }
